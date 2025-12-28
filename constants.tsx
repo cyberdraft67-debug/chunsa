@@ -43,15 +43,15 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: '4',
-    name: 'XL Premium Select Pattie',
-    description: 'The absolute finest. Extra-large, hand-selected golden specimens. Only the biggest and sweetest yellow mangoes make it into this 10kg Peti.',
+    name: 'XL Premium Sovereign Box',
+    description: 'The apex of our harvest. This exclusive selection features monolithic Chaunsa specimens, where each individual fruit weighs an astounding half-kilogram. These golden giants represent the peak of sugar concentration and velvety texture.',
     price: 4000,
-    unit: '10kg XL Select Pattie',
+    unit: '4.5kg - 5kg XL Premium Box',
     image: 'https://pictures.grocerapps.com/original/grocerapp-mango-white-chaunsa-5kg-box-64958fcfea299.png',
     category: 'Premium',
     stock: 2,
     reviews: [
-      { id: 'r4', userName: 'Elena R.', rating: 5, comment: 'Incredible size and deep yellow color. Worth every rupee.', date: '2024-05-15' }
+      { id: 'r4', userName: 'Elena R.', rating: 5, comment: 'Incredible size and deep yellow color. Each mango is massive!', date: '2024-05-15' }
     ]
   }
 ];
