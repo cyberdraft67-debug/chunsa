@@ -5,14 +5,27 @@ import { motion } from 'framer-motion';
 const Hero: React.FC<{ onExplore: () => void }> = ({ onExplore }) => {
   return (
     <div id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Video Container */}
-      <div className="absolute inset-0 z-0">
+      {/* Background Container with Movement */}
+      <motion.div 
+        initial={{ scale: 1 }}
+        animate={{ 
+          scale: [1, 1.15, 1],
+          x: [0, -15, 0],
+          y: [0, -10, 0]
+        }}
+        transition={{ 
+          duration: 30, 
+          repeat: Infinity, 
+          ease: "linear" 
+        }}
+        className="absolute inset-0 z-0"
+      >
         <video 
           autoPlay 
           loop 
           muted 
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-110"
           poster="https://images.unsplash.com/photo-1591073113125-e46713c829ed?q=80&w=2000&auto=format&fit=crop"
         >
           <source 
@@ -20,10 +33,11 @@ const Hero: React.FC<{ onExplore: () => void }> = ({ onExplore }) => {
             type="video/mp4" 
           />
         </video>
-        
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[0.5px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30"></div>
-      </div>
+      </motion.div>
+
+      {/* Static Overlays (Not moving with the background) */}
+      <div className="absolute inset-0 z-[1] bg-black/40 backdrop-blur-[0.5px]"></div>
+      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-black/20 to-black/30"></div>
 
       {/* Hero Content with Framer Motion */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 text-center">
@@ -89,7 +103,7 @@ const Hero: React.FC<{ onExplore: () => void }> = ({ onExplore }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.6 }}
         transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       >
         <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">Explore Selection</span>
         <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-1.5">
