@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem } from '../types';
 import { WHATSAPP_NUMBER } from '../constants';
@@ -13,13 +13,30 @@ interface CartDrawerProps {
 }
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemove, onUpdateQuantity }) => {
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    phone: '',
+    address: ''
+  });
+  const [showValidation, setShowValidation] = useState(false);
+
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleWhatsAppOrder = () => {
     if (items.length === 0) return;
+    
+    // Check if fields are filled
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+      setShowValidation(true);
+      return;
+    }
 
     let message = `*Royal Order: Chaunsa Gold*%0A%0A`;
-    message += `I would like to secure the following harvest:%0A`;
+    message += `*Customer Details:*%0A`;
+    message += `Name: ${customerInfo.name}%0A`;
+    message += `Phone: ${customerInfo.phone}%0A`;
+    message += `Address: ${customerInfo.address}%0A%0A`;
+    message += `*Order Selection:*%0A`;
     
     items.forEach((item, index) => {
       message += `%0A${index + 1}. *${item.name}*%0A   Qty: ${item.quantity} units (${item.unit})%0A   Sub: Rs. ${(item.price * item.quantity).toLocaleString()}%0A`;
@@ -84,67 +101,118 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
                   <button onClick={onClose} className="bg-amber-500 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-amber-600 transition-all shadow-lg active:scale-95">Browse Selection</button>
                 </div>
               ) : (
-                <div className="space-y-8">
-                  {items.map(item => {
-                    const averageRating = item.reviews.length > 0 
-                      ? (item.reviews.reduce((acc, r) => acc + r.rating, 0) / item.reviews.length)
-                      : 0;
+                <div className="space-y-8 pb-12">
+                  <div className="space-y-8">
+                    {items.map(item => {
+                      const averageRating = item.reviews.length > 0 
+                        ? (item.reviews.reduce((acc, r) => acc + r.rating, 0) / item.reviews.length)
+                        : 0;
 
-                    return (
-                      <motion.div 
-                        layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        key={item.id} 
-                        className="flex gap-6 p-5 bg-white rounded-[2rem] shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-gray-50 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-all"
-                      >
-                        <div className="relative shrink-0">
-                          <img src={item.image} alt={item.name} className="w-28 h-28 object-cover rounded-3xl" />
-                          <div className="absolute -top-2 -right-2 bg-amber-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-lg border-2 border-white">
-                            {item.quantity}
-                          </div>
-                        </div>
-                        <div className="flex-1 flex flex-col justify-between overflow-hidden">
-                          <div className="space-y-1">
-                            <h4 className="font-black text-gray-900 truncate text-lg tracking-tight">{item.name}</h4>
-                            <div className="flex items-center gap-2">
-                              {renderStars(averageRating)}
-                              <span className="text-[9px] font-black text-amber-600/60 uppercase tracking-widest">{item.unit}</span>
+                      return (
+                        <motion.div 
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          key={item.id} 
+                          className="flex gap-6 p-5 bg-white rounded-[2rem] shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-gray-50 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-all"
+                        >
+                          <div className="relative shrink-0">
+                            <img src={item.image} alt={item.name} className="w-28 h-28 object-cover rounded-3xl" />
+                            <div className="absolute -top-2 -right-2 bg-amber-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-lg border-2 border-white">
+                              {item.quantity}
                             </div>
                           </div>
-                          
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex items-center bg-gray-50 rounded-xl border border-gray-100 p-1">
-                              <button 
-                                onClick={() => onUpdateQuantity(item.id, -1)} 
-                                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-600 hover:bg-white rounded-lg transition-all font-black"
-                              >
-                                −
-                              </button>
-                              <span className="w-10 text-center font-black text-sm text-gray-900">
-                                {item.quantity}
-                              </span>
-                              <button 
-                                onClick={() => onUpdateQuantity(item.id, 1)} 
-                                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-600 hover:bg-white rounded-lg transition-all font-black"
-                              >
-                                +
-                              </button>
+                          <div className="flex-1 flex flex-col justify-between overflow-hidden">
+                            <div className="space-y-1">
+                              <h4 className="font-black text-gray-900 truncate text-lg tracking-tight">{item.name}</h4>
+                              <div className="flex items-center gap-2">
+                                {renderStars(averageRating)}
+                                <span className="text-[9px] font-black text-amber-600/60 uppercase tracking-widest">{item.unit}</span>
+                              </div>
                             </div>
-                            <span className="font-black text-gray-900 text-lg tracking-tight">Rs. {(item.price * item.quantity).toLocaleString()}</span>
+                            
+                            <div className="flex items-center justify-between mt-4">
+                              <div className="flex items-center bg-gray-50 rounded-xl border border-gray-100 p-1">
+                                <button 
+                                  onClick={() => onUpdateQuantity(item.id, -1)} 
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-600 hover:bg-white rounded-lg transition-all font-black"
+                                >
+                                  −
+                                </button>
+                                <span className="w-10 text-center font-black text-sm text-gray-900">
+                                  {item.quantity}
+                                </span>
+                                <button 
+                                  onClick={() => onUpdateQuantity(item.id, 1)} 
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-600 hover:bg-white rounded-lg transition-all font-black"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <span className="font-black text-gray-900 text-lg tracking-tight">Rs. {(item.price * item.quantity).toLocaleString()}</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex flex-col justify-start">
-                          <button 
-                            onClick={() => onRemove(item.id)} 
-                            className="p-2 text-gray-200 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                          </button>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                          <div className="flex flex-col justify-start">
+                            <button 
+                              onClick={() => onRemove(item.id)} 
+                              className="p-2 text-gray-200 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            </button>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Delivery Information Section */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white p-8 rounded-[2.5rem] border border-amber-100 shadow-sm space-y-6"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
+                      <h3 className="font-black text-gray-900 uppercase tracking-widest text-sm">Delivery Details</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Full Name</label>
+                        <input 
+                          type="text" 
+                          value={customerInfo.name}
+                          onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                          placeholder="Your Name"
+                          className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border ${showValidation && !customerInfo.name ? 'border-red-500' : 'border-gray-100'} focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 transition-all font-bold text-gray-900 placeholder:text-gray-300`}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Phone Number</label>
+                        <input 
+                          type="tel" 
+                          value={customerInfo.phone}
+                          onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                          placeholder="03xx xxxxxxx"
+                          className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border ${showValidation && !customerInfo.phone ? 'border-red-500' : 'border-gray-100'} focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 transition-all font-bold text-gray-900 placeholder:text-gray-300`}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Shipping Address</label>
+                        <textarea 
+                          value={customerInfo.address}
+                          onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                          placeholder="House #, Street, City"
+                          className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border ${showValidation && !customerInfo.address ? 'border-red-500' : 'border-gray-100'} focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 transition-all font-bold text-gray-900 placeholder:text-gray-300 min-h-[100px]`}
+                        />
+                      </div>
+                      {showValidation && (!customerInfo.name || !customerInfo.phone || !customerInfo.address) && (
+                        <p className="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">Please complete your delivery details</p>
+                      )}
+                    </div>
+                  </motion.div>
                 </div>
               )}
             </div>
