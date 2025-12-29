@@ -1,4 +1,5 @@
 
+import { sendOrderToGoogleSheet } from '../services/sheetsWebhook';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartItem } from '../types';
@@ -22,32 +23,49 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onRemov
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleWhatsAppOrder = () => {
-    if (items.length === 0) return;
-    
-    // Check if fields are filled
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      setShowValidation(true);
-      return;
-    }
+const handleWhatsAppOrder = async () => {
+  if (items.length === 0) return;
 
-    let message = `*Royal Order: Chaunsa Gold*%0A%0A`;
-    message += `*Customer Details:*%0A`;
-    message += `Name: ${customerInfo.name}%0A`;
-    message += `Phone: ${customerInfo.phone}%0A`;
-    message += `Address: ${customerInfo.address}%0A%0A`;
-    message += `*Order Selection:*%0A`;
-    
-    items.forEach((item, index) => {
-      message += `%0A${index + 1}. *${item.name}*%0A   Qty: ${item.quantity} units (${item.unit})%0A   Sub: Rs. ${(item.price * item.quantity).toLocaleString()}%0A`;
+  // WhatsApp URL-encoded message (existing format)
+  let message = `*Royal Order: Chaunsa Gold*%0A%0A`;
+  message += `I would like to secure the following harvest:%0A`;
+
+  items.forEach((item, index) => {
+    message += `%0A${index + 1}. *${item.name}*%0A   Qty: ${item.quantity} units (${item.unit})%0A   Sub: Rs. ${(item.price * item.quantity).toLocaleString()}%0A`;
+  });
+
+  message += `%0A*Total Order Value: Rs. ${total.toLocaleString()}*%0A%0A`;
+  message += `Please confirm shipping and payment instructions.`;
+
+  // A clean readable message for Google Sheet (not url-encoded)
+  const messageText =
+    `Royal Order: Chaunsa Gold\n\n` +
+    `I would like to secure the following harvest:\n` +
+    items
+      .map(
+        (item, index) =>
+          `\n${index + 1}. ${item.name}\n   Qty: ${item.quantity} units (${item.unit})\n   Sub: Rs. ${(item.price * item.quantity).toLocaleString()}`
+      )
+      .join("\n") +
+    `\n\nTotal Order Value: Rs. ${total.toLocaleString()}\n\n` +
+    `Please confirm shipping and payment instructions.`;
+
+  // Send to Google Sheet FIRST
+  try {
+    await sendOrderToGoogleSheet({
+      items,
+      total,
+      messageText,
     });
+  } catch (e) {
+    console.log("Google Sheet webhook failed:", e);
+  }
 
-    message += `%0A*Total Order Value: Rs. ${total.toLocaleString()}*%0A%0A`;
-    message += `Please confirm shipping and payment instructions.`;
+  // Then open WhatsApp
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+  window.open(whatsappUrl, "_blank");
+};
 
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-    window.open(whatsappUrl, '_blank');
-  };
 
   const renderStars = (rating: number) => {
     return (
