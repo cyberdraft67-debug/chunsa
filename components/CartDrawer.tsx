@@ -2,7 +2,7 @@ import { useCart } from "../context/CartContext";
 import { X } from "lucide-react";
 import { sendOrderToGoogleSheet } from "../services/sheetsWebhook";
 
-const WHATSAPP_NUMBER = "923001234567"; // 🔴 CHANGE TO YOUR NUMBER (without +)
+const WHATSAPP_NUMBER = "9232175625"; // 🔴 CHANGE TO YOUR NUMBER (without +)
 
 export default function CartDrawer({
   open,
