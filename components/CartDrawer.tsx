@@ -1,8 +1,7 @@
 import { useCart } from "../context/CartContext";
-import { X } from "lucide-react";
 import { sendOrderToGoogleSheet } from "../services/sheetsWebhook";
 
-const WHATSAPP_NUMBER = "9232175625"; // 🔴 CHANGE TO YOUR NUMBER (without +)
+const WHATSAPP_NUMBER = "9232175625"; // 🔴 CHANGE THIS (without +)
 
 export default function CartDrawer({
   open,
@@ -36,7 +35,7 @@ export default function CartDrawer({
        =========================== */
     const sheetMessage =
       `Royal Order: Chaunsa Gold\n\n` +
-      `Order Details:\n` +
+      `Order Details:\n\n` +
       items
         .map(
           (item, index) =>
@@ -58,7 +57,7 @@ export default function CartDrawer({
         messageText: sheetMessage,
       });
     } catch (err) {
-      console.log("Google Sheet failed:", err);
+      console.log("Google Sheet error:", err);
     }
 
     /* ===========================
@@ -76,8 +75,12 @@ export default function CartDrawer({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">Your Cart</h2>
-          <button onClick={onClose}>
-            <X />
+          <button
+            onClick={onClose}
+            aria-label="Close cart"
+            className="text-xl font-bold"
+          >
+            ✕
           </button>
         </div>
 
