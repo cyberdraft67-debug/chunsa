@@ -2,7 +2,7 @@ import type { CartItem } from "../types";
 
 // Your latest Apps Script Web App URL
 const WEBHOOK_URL =
-  "https://script.google.com/macros/s/AKfycbxoDsuO1ftN4XSZYQDugtx1zWO0nSTGU0TzvoOrWLcTc5b1cYmRoA-H5NjGQGIpNmYk/exec";
+  "https://script.google.com/macros/s/AKfycbzTSpvNe1yppLBPeP-ORRcVSlOWnL7cVS6F3mcbjPE8qxc1e52W0rxSFyZg8s2TReqn/exec";
 
 export async function sendOrderToGoogleSheet(params: {
   items: CartItem[];
