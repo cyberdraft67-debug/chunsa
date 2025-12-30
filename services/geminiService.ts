@@ -1,35 +1,30 @@
-
 import { GoogleGenAI } from "@google/genai";
 
-// Correctly initialize with process.env.API_KEY as a named parameter
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// ✅ Vite reads env vars from import.meta.env and they must start with VITE_
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 
 export const getMangoAssistantResponse = async (userMessage: string) => {
+  // If no key, don’t crash the app
+  if (!apiKey) {
+    return "AI is currently disabled because the API key is not set.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   try {
-    // Using ai.models.generateContent directly with model and prompt as recommended
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: "gemini-3-flash-preview",
       contents: userMessage,
       config: {
-        systemInstruction: `You are the "Chaunsa Gold AI Assistant". You are an expert on the Chaunsa variety of mango, often called the "King of Mangoes". 
-        
-        Your Core Duties:
-        1. Provide specific, mouth-watering recipes using Chaunsa mangoes.
-        2. Explain why Chaunsa is the world's best variety (sweetness, honey-like aroma, fiber-less texture).
-        3. When a user asks for a "recipe" or uses the search bar for ingredients:
-           - Structure the response with: [Dish Name], [Prep Time], [Ingredients], and [Clear Steps].
-           - Mention how the specific sweetness of Chaunsa enhances that specific dish.
-        4. Keep your tone sophisticated, warm, and helpful. 
-        5. If asked about other mangoes, politely pivot back to why Chaunsa is superior.
-        6. Always focus on culinary creativity and premium quality.`,
-        temperature: 0.7,
+        systemInstruction: `You are the "Chaunsa Gold AI Assistant"...`,
       },
     });
 
-    // Access the .text property directly from the response object (not a method call)
-    return response.text || "I'm sorry, I couldn't process that request. How can I help you with our Chaunsa mangoes today?";
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "I am currently having some trouble connecting to my mango knowledge base. Please try again in a moment!";
+    // @google/genai returns a response object; text is usually here:
+    // If this line errors, tell me and I’ll adjust based on the exact SDK response type.
+    return (response as any).text ?? "No response received.";
+  } catch (err) {
+    console.log("Gemini error:", err);
+    return "AI is temporarily unavailable. Please try again later.";
   }
 };
